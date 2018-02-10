@@ -5,6 +5,9 @@ This is a choose your own adventure game using [Twine 2] as a base. See AKNOWLED
 
 ## Project team:
 Regina Locicero
+
 Lauren DiDonato
+
 Felix Brink
+
 Eleanor Post
