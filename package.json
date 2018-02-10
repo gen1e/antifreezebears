@@ -34,7 +34,7 @@
     "chalk": "latest",
     "fs-readdir-recursive": "latest",
     "jshint": "latest",
-    "marked": "0.3.3",
+    "marked": "0.3.9",
     "requirejs": "latest",
     "replacestream": "latest",
     "uglifyjs": "latest"
