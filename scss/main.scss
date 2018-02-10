@@ -1,0 +1,185 @@
+$color: white;
+$background-color: black;
+
+/*
+	<html> should be left alone, except where needed to accomodate <tw-story>.
+*/
+html {
+	margin: 0;
+	// This allows <tw-story> to cover the entire page
+	height:100%;
+	overflow-x:hidden;
+}
+/*
+	This enables border-box on every element by default, unless overridden
+	by a parent element.
+	It also enables position:relative by default, which allows top, left, etc.
+	to be used heedlessly.
+*/
+*, :before, :after {
+	position: relative;
+	box-sizing: inherit;
+}
+// This is just a reset.
+body {
+	margin: 0;
+	// This allows <tw-story> to cover the entire page
+	height:100%;
+}
+
+/*
+	<tw-storydata> houses the raw passage data of the story.
+	Of course, it can't be visible.
+*/
+tw-storydata {
+	display: none;
+}
+
+/*
+	The <tw-story> element houses all of the <tw-passage>s.
+	This element can be styled by setting a ChangerCommand to ?page
+*/
+tw-story {
+	@include flexbox;
+	@include flex-direction(column);
+	
+	font: 100% Georgia, serif;
+	// Use the more intuitive box model.
+	box-sizing: border-box;
+
+	/*
+		Instead of a 60% width, this uses 40% horizontal padding (applied below).
+	*/
+	width: 100%;
+	min-height: 100%;
+	/*
+		This is the base font size, which is permuted below.
+	*/
+	$font-size: 1.5em;
+	
+	font-size:   $font-size;
+	line-height: $font-size;
+	
+	/*
+		The <tw-story>'s default distance from the top and bottom of the page is 5%.
+	*/
+	padding: 5% 20%;
+	margin: 0;
+
+	background-color: $background-color;
+	color: $color;
+}
+
+/*
+	The <tw-passage> element houses a single passage, including its sidebar.
+*/
+tw-passage {
+	display: block;
+}
+
+/* This causes consecutive line breaks to consume less height than they normally would. */
+br + br {
+	display:block;
+	height: 0;
+	margin: 0.8ex 0;
+}
+
+/*
+	The <tw-sidebar> is the first element in a <tw-passage>, and is placed to the left
+	when the story begins.
+*/
+tw-sidebar {
+	left: -5em;
+	width: 3em;
+	position:absolute;
+	text-align:center;
+	display:block;
+}
+
+/*
+	A <tw-icon> is, at present, a sidebar button.
+*/
+tw-icon {
+	display: block;
+	margin: 0.5em 0;
+	opacity: 0.1;
+	font-size: 2.75em;
+	&:hover {
+		opacity: 0.3;
+	}
+}
+
+/*** Inner passage formatting ***/
+
+/*
+	These are the primary clickable game elements:
+	<tw-link>  : passage links
+	.link      : enchantment links
+	tw-icon    : the undo button
+*/
+
+// This ensures that hooks styled with borders, etc. won't be visible if they have their
+// contents suppressed by an (if:) macro.
+tw-hook:empty, tw-expression:empty {
+	display:none;
+}
+
+tw-error {
+	display: inline-block;
+	border-radius: 0.2em;
+	padding: 0.2em;
+	font-size: 1rem;
+	cursor: help;
+	&.error {
+		background-color: hsla(312, 72%, 55%, 0.4); // A demure pink
+		color:$color;
+	}
+	&.warning {
+		background-color: hsla(30, 72%, 55%, 0.4); // A stained orange
+		color:$color;
+		display: none; // Only available in debug mode.
+		.debug-mode & {
+			display: inline;
+		}
+	}
+}
+tw-error-explanation {
+	display: block;
+	font-size: 0.8rem;
+	line-height: 1rem;
+}
+tw-error-explanation-button {
+	cursor: pointer;
+	line-height: 0em;
+	border-radius: 1px;
+	border: 1px solid black;
+	font-size: 0.8rem;
+	margin: 0 0.4rem;
+	opacity: 0.5;
+	& .folddown-arrowhead {
+		display:inline-block;
+	}
+}
+tw-notifier {
+	border-radius: 0.2em;
+	padding: 0.2em;
+	font-size: 1rem;
+	background-color: hsla(45, 72%, 55%, 0.4); // A bright yellow.
+	display: none; // Only available in debug mode.
+	.debug-mode & {
+		display: inline;
+	}
+	&::before {
+		content: attr(message);
+	}
+}
+
+/*
+	When a Colour type is printed, it comes out as a <tw-colour> element.
+*/
+tw-colour {
+	border: 1px solid black;
+	display: inline-block;
+	width: 1em;
+	height: 1em;
+}

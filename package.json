@@ -1,0 +1,42 @@
+{
+  "name": "twine-harlowe",
+  "version": "2.1.0",
+  "author": "Leon Arnott",
+  "description": "The default runtime for Twine 2 stories",
+  "license": "Zlib",
+  "repository": {
+    "type": "hg",
+    "url": "https://bitbucket.org/_L_/harlowe"
+  },
+  "contributors": [
+    {
+      "name": "Leon Arnott",
+      "email": null
+    },
+    {
+      "name": "Chris Klimas",
+      "email": "klimas@gmail.com"
+    }
+  ],
+  "engines": {
+    "npm": ">=3.0",
+    "node": ">=6.0"
+  },
+  "dependencies": {
+    "almond": "latest",
+    "es6-shim": "latest",
+    "jquery": "latest",
+    "requestanimationframe": "*"
+  },
+  "devDependencies": {
+    "babel-cli": "^6",
+    "babel-preset-es2015": "^6",
+    "chalk": "latest",
+    "fs-readdir-recursive": "latest",
+    "jshint": "latest",
+    "marked": "0.3.3",
+    "requirejs": "latest",
+    "replacestream": "latest",
+    "uglifyjs": "latest"
+  }
+}

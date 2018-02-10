@@ -1,0 +1,20 @@
+{
+	"globals" : {
+		"describe"              : true,
+		"expect"                : true,
+		"it"                    : true,
+		"afterEach"             : true,
+		"beforeEach"            : true,
+		"Engine"                : true,
+		"createPassage"         : true,
+		"runPassage"            : true,
+		"goToPassage"           : true,
+		"$"                     : true
+	},
+	"evil"     : true,
+	"laxbreak" : true,
+	"newcap"   : false,
+
+	"strict"                : true,
+	"browser"               : true
+}

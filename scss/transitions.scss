@@ -1,0 +1,83 @@
+/* Transitions */
+@mixin animation($animations) {
+	-webkit-animation: $animations;
+            animation: $animations;
+}
+
+$time: 0.8s;
+
+/* Invalid/instant transition */
+.transition-in {
+	@include animation(appear 0ms step-start);
+}
+.transition-out {
+	@include animation(appear 0ms step-end);
+}
+
+/* Dissolve, fade-in */
+[data-t8n^=fade-in] {
+	&.transition-in {
+		@include animation(appear $time);
+		/*background-color: hsla(120,50%,50%,0.5);*/
+	}
+	&.transition-out {
+		display:none;
+	}
+}
+[data-t8n^=dissolve] {
+	&.transition-in {
+		@include animation(appear $time);
+	}
+	&.transition-out {
+		@include animation(appear $time reverse);
+	}
+}
+
+/* Shudder, shudder-in, shudder-out */
+[data-t8n^=shudder] {
+	@extend [data-t8n^=shudder-in];
+	@extend [data-t8n^=shudder-out];
+}
+[data-t8n^=shudder-in] {
+	&.transition-in {
+		display: inline-block;
+		@include animation(shudder-in $time);
+	}
+}
+[data-t8n^=shudder-out] {
+	&.transition-out {
+		display: inline-block;
+		@include animation(shudder-out $time);
+	}
+}
+
+/* Box-flash */
+[data-t8n^=boxflash] {
+	&.transition-in {
+		@include animation(box-flash $time);
+	}
+}
+
+/* Pulse */
+[data-t8n^=pulse] {
+	&.transition-in {
+		@include animation(pulse $time);
+		display:inline-block;
+	}
+	&.transition-out {
+		@include animation(pulse $time reverse);
+		display:inline-block;
+	}
+}
+
+/* Modifiers */
+[data-t8n$=fast] {
+	animation-duration: $time/2;
+	-webkit-animation-duration: $time/2;
+}
+
+/* Modifiers */
+[data-t8n$=slow] {
+	animation-duration: $time*2;
+	-webkit-animation-duration: $time*2;
+}

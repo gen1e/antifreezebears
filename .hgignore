@@ -1,0 +1,8 @@
+syntax: glob
+*.swp
+node_modules/*
+dist/*
+build/*
+*.bat
+\.DS_Store
+

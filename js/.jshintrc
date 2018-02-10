@@ -1,0 +1,33 @@
+{
+	"globals": {
+		"Map"        : true,
+		"Set"        : true,
+		"require"    : true,
+		"define"     : true,
+		"module"     : true,
+		"global"     : true,
+
+		"StoryFormat": true,
+		"CodeMirror" : true,
+		"_"          : true
+	},
+	"eqeqeq"   : true,
+	"immed"    : true,
+	"latedef"  : "nofunc",
+	"noarg"    : true,
+	"nonew"    : true,
+	"undef"    : true,
+	"unused"   : true,
+	"strict"   : "global",
+	
+	"evil"     : true,
+	"expr"     : true,
+	"laxbreak" : true,
+	"validthis": true,
+	"debug"    : true,
+	"newcap"   : false,
+	
+	"browser"  : true,
+	"devel"    : true,
+	"esnext"   : true
+}

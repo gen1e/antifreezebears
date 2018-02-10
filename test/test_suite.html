@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<title>Jasmine Spec Runner v2.4.1</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jasmine/2.4.1/jasmine.css">
+<style>.jasmine-disabled { display:none; } .jasmine-open { z-index:2; }</style>
+<script src="../node_modules/es6-shim/es6-shim.min.js"></script>
+<script src="../node_modules/requirejs/require.js"></script>
+<script>
+// Testing the format.js file, with its compiled CSS and minified ES5
+if(location.search.indexOf("?code=formatjs") > -1) {
+	window.storyFormat = function(e) {
+		var root = document.createElement('html');
+		root.innerHTML = e.source.replace(/.+\n/,'');
+		// document.documentElement.appendChild() doesn't work, sadly.
+		document.write(root.querySelector('style').outerHTML);
+		document.write(root.querySelector('script').outerHTML);
+	};
+	document.write("<script src='../dist/format.js'><\/script>");
+}
+else {
+	document.write('<link rel="stylesheet" href="../build/harlowe-css.css"\/>');
+
+	// Testing the compiled ES5
+	if(location.search.indexOf("?code=es5") > -1) {
+		document.write("<script src='../build/harlowe-min.js'><\/script>");
+	}
+	// Testing the raw ES6 source
+	else {
+		require.config({baseUrl: "../js/", scriptType: "application/javascript;version=1.8"});
+		require(["markup/lexer","markup/patterns","markup/markup","harlowe"]);
+	}
+}
+</script>
+<script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/jasmine/2.4.1/jasmine.js"></script>
+<script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/jasmine/2.4.1/jasmine-html.js"></script>
+<script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/jasmine/2.4.1/boot.js"></script>
+<script role="script" type="text/twine-javascript">
+window.createPassage = function(text, name, tags) {
+	Passages.set(name, new Map([
+		["source", text],
+		["name", name],
+		["tags", tags],
+	]));
+};
+window.goToPassage = function(text, name) {
+	Engine.goToPassage(text, name);
+	return $('tw-passage > tw-transition-container, tw-passage > tw-hook');
+};
+window.runPassage = function(text, name, tags) {
+	name = name || "test";
+	createPassage(text, name, tags);
+	Engine.goToPassage(name);
+	
+	return $('tw-passage:last-of-type > tw-transition-container, tw-passage > tw-hook');
+};
+
+var combinations = new Set(function recur(prefix, arr) {
+	var ret = [];
+	if (prefix.length >= 4) {
+		return [prefix];
+	}
+	for (var i = 0; i < arr.length; i += 1) {
+		ret.push(prefix.concat([arr[i]]));
+		ret = ret.concat(recur(prefix.concat([arr[i]]), arr));
+	}
+	return ret;
+}([], [
+	[Number, "2"],
+	[String, "'A𐌎B'"],
+	[Boolean, "false"],
+	[Array, "(a: 2,3,4,5)"],
+	[Map, "(datamap:)"],
+	[Set, "(dataset:)"],
+]));
+
+window.checkMacroTypeSignature = function(macroname, signature, afterward) {
+	Array.from(combinations).filter(function(e) { return e.length <= signature.length + 1; }).forEach(function(combination) {
+		/*
+			Zip up the arguments and signature params to compare them.
+		*/
+		var zipped = [];
+		for (var i = 0; i < Math.max(combination.length, signature.length); i+=1) {
+			zipped.push([combination[i], signature[i]]);
+		}
+
+		var canRun =
+			zipped.every(function(e) {
+				var argument = e[0];
+				var param = e[1];
+				var argType = (argument || {})[0];
+
+				return (argType === param ||
+					/*
+						If param is "any", accept any present argument.
+					*/
+					(param === Macros.TypeSignature.Any && argument !== undefined) &&
+					/*
+						If param is "optional" or "zero or more", the argument may be undefined.
+					*/
+					(param && ["optional","zero or more"].indexOf(param.pattern) > -1 &&
+					argType === param.innerType || argument === undefined) ||
+					/*
+						If param is "either", the argument may be any of the given types.
+					*/
+					(param && param.pattern === "either" &&
+					param.innerType.indexOf(argType) > -1) ||
+					/*
+						If param is undefined, and actual final param was not present, "rest" or "zero or more",
+						the argument may be undefined.
+					*/
+					(param === undefined && (signature.length == 0 || ["rest","zero or more"].indexOf(signature[signature.length-1].pattern) > -1) &&
+					argType === param.innerType || argument === undefined));
+			});
+		var exp = expect("(" + macroname + ":" + combination.map(function(e){return e[1]}) + ")" + afterward);
+		if (canRun) {
+			exp.not.markupToError();
+		}
+		else {
+			exp.markupToError();
+		}
+	});
+}
+
+window.clearState = function() {
+	State.reset();
+	Passages.clear();
+};
+window.Engine = Engine;
+</script>
+<script>
+jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
+
+// Store Harlowe error messages, so that they can be appraised.
+var ErrorMessages = '';
+afterAll(function() {
+	$('.errormessages').text(ErrorMessages);
+});
+
+beforeEach(function() {
+	function recordErrorMessage(str) {
+		ErrorMessages += str + '\n';
+	}
+	function hexToRGBA(str) {
+		if (str[0] !== "#") {
+			return "";
+		}
+		return "|rgba?\\(\\s*"
+			+ parseInt(str.slice(1,3), 16) + ",\\s*"
+			+ parseInt(str.slice(3,5), 16) + ",\\s*"
+			+ parseInt(str.slice(5,7), 16) + "\\s*(?:,\\s*1\\s*)?\\)";
+	}
+	jasmine.addMatchers({
+		markupToBecome: Object.bind(Object,{
+			compare: function(a,e) {
+				var result = (runPassage(a).html() || '');
+				if (result === e) {
+					return { pass: true,  message: "Expected markup '" + a + "' not to become '" + e + "'" };
+				} else {
+					return { pass: false, message: "Expected markup '" + a + "' to become '" + e + "', not '" + result + "'" };
+				}
+			}
+		}),
+		markupToPrint: Object.bind(Object,{
+			compare: function(a,e) {
+				var result = (runPassage(a).find('br').replaceWith(document.createTextNode('\n')).end().text() || '');
+				if (result === e) {
+					return { pass: true,  message: "Expected markup '" + a + "' not to print '" + e + "'" };
+				} else {
+					return { pass: false, message: "Expected markup '" + a + "' to print '" + e + "', not '" + result + "'" };
+				}
+			}
+		}),
+		markupToError: Object.bind(Object,{
+			compare: function(a,e) {
+				var p = runPassage(a);
+				var error = p.find('tw-error:not(.javascript)');
+				if (error.length > 0) {
+					var text = error.contents()[0].textContent;
+					recordErrorMessage(text);
+					return { pass: true,  message: "Expected markup '" + a + "' not to error, but its error was '" + text + "'" };
+				} else {
+					return { pass: false, message: "Expected markup '" + a + "' to error, but it rendered '" + p.html() + "'" };
+				}
+			},
+			negativeCompare: function(a,e) {
+				var p = runPassage(a);
+				var error = p.find('tw-error'); // Includes tw-error.javascript
+				if (error.length > 0) {
+					var text = error.contents()[0].textContent;
+					recordErrorMessage(text);
+					return { pass: false,  message: "Expected markup '" + a + "' not to error, but its error was '" + text + "'" };
+				} else {
+					return { pass: true, message: "Expected markup '" + a + "' to error, but it rendered '" + p.html() + "'" };
+				}
+			}
+		}),
+		markupToJSError: Object.bind(Object,{
+			compare: function(a,e) {
+				var p = runPassage(a);
+				var error = p.find('tw-error.javascript');
+				if (error.length > 0) {
+					var text = error.contents()[0].textContent;
+					return { pass: true,  message: "Expected markup '" + a + "' not to throw a JS error, but its error was '" + text + "'" };
+				} else {
+					return { pass: false, message: "Expected markup '" + a + "' to throw a JS error, but it rendered '" + p.html() + "'" };
+				}
+			},
+		}),
+		toHaveColour: Object.bind(Object,{
+			compare: function(a,colour) {
+				colour = colour.replace(/(\(|\))/g, "\\$1");
+				var rgba = hexToRGBA(colour);
+				var pass;
+				if (colour === "transparent") {
+					pass = (colour === "transparent" || colour.match(/^\w+a\(.+?,\s*0\s*\)$/));
+				}
+				else {
+					pass = a.jquery && (a.attr('style') + '').match(new RegExp(
+						"color:\\s*(?:" + colour + rgba + ")", "i"));
+				}
+				return {
+					pass: !!pass,
+					message: !pass
+						? "Expected element style '" + a.attr('style')
+							+ "' to contain a colour of " + colour
+						: "Expected element style '" + a.attr('style')
+							+ "' not to contain a colour of " + colour
+				};
+			}
+		}),
+		toHaveBackgroundColour: Object.bind(Object,{
+			compare: function(a,colour) {
+				colour = colour.replace(/(\(|\))/g, "\\$1");
+				var rgba = hexToRGBA(colour);
+				var pass = a.jquery && (a.attr('style') + '').match(new RegExp(
+						"color:\\s*(?:" + colour + rgba + ")", "i"));
+				return {
+					pass: !!pass,
+					message: !pass
+						? "Expected element style '" + a.attr('style')
+							+ "' to contain a background-colour of " + colour
+						: "Expected element style '" + a.attr('style')
+							+ "' not to contain a background-colour of " + colour
+				};
+			}
+		}),
+		toHaveTextShadowColour: Object.bind(Object,{
+			compare: function(a,colour) {
+				colour = colour.replace(/(\(|\))/g, "\\$1");
+				var rgba = hexToRGBA(colour);
+				var pass = a.jquery && (a.attr('style') + '').match(new RegExp(
+						/*
+							Some browsers vary in the order they put the text-shadow property's colour
+							and dimensions.
+						*/
+						"text-shadow:(?:\\s*[\-\.\\w]+)*\\s*(?:" + colour + rgba + ")", "i"));
+				return {
+					pass: !!pass,
+					message: !pass
+						? "Expected element style '" + a.attr('style')
+							+ "' to contain a text-shadow coloured " + colour
+						: "Expected element style '" + a.attr('style')
+							+ "' not to contain a text-shadow coloured " + colour
+				};
+			}
+		}),
+	});
+});
+
+beforeEach(function f(done) {
+	if (window.$ && window.clearState) {
+		$('tw-story').empty();
+		clearState();
+		localStorage.clear();
+		done();
+		return;
+	}
+	setTimeout(f.bind(0, done), 1);
+});
+afterAll(function() {
+	$('tw-story').removeAttr('style');
+});
+</script>
+<body>
+<nav style="font-family:Monaco;background:#eee;padding:0.5em">
+<a style='color:black' href="#" onclick="location=String(location).replace(/\??(code.+)?$/,'?code=es6')">Raw ES6</a> |
+<a style='color:black' href="#" onclick="location=String(location).replace(/\??(code.+)?$/,'?code=es5')">Compiled harlowe-min.js</a> |
+<a style='color:black' href="#" onclick="location=String(location).replace(/\??(code.+)?$/,'?code=formatjs')">Compiled format.js</a>
+</nav>
+
+<!-- include spec files here... -->
+<script src="spec/markup/text_styles.js"></script>
+<script src="spec/markup/links.js"></script>
+<script src="spec/markup/hooks.js"></script>
+<script src="spec/markup/line_breaks.js"></script>
+<script src="spec/markup/headers.js"></script>
+<script src="spec/markup/lists.js"></script>
+<script src="spec/markup/aligners.js"></script>
+<script src="spec/markup/columns.js"></script>
+<script src="spec/markup/verbatim_syntax.js"></script>
+<script src="spec/markup/collapsing_syntax.js"></script>
+<script src="spec/markup/html.js"></script>
+<script src="spec/markup/restricted_syntax.js"></script>
+
+<script src="spec/tags/passage_tags.js"></script>
+<script src="spec/tags/setup_passages.js"></script>
+
+<script src="spec/twinescript/literals.js"></script>
+<script src="spec/twinescript/macro_calls.js"></script>
+<script src="spec/twinescript/operators.js"></script>
+<script src="spec/twinescript/identifiers.js"></script>
+<script src="spec/twinescript/variables.js"></script>
+<script src="spec/twinescript/temporary_variables.js"></script>
+<script src="spec/twinescript/hook_references.js"></script>
+<script src="spec/twinescript/property_indexing.js"></script>
+<script src="spec/twinescript/determiners.js"></script>
+<script src="spec/twinescript/move.js"></script>
+
+<script src="spec/value_macros/primitives.js"></script>
+<script src="spec/value_macros/colour_macros.js"></script>
+<script src="spec/value_macros/data_structures.js"></script>
+<script src="spec/value_macros/lambda_macros.js"></script>
+<script src="spec/value_macros/game_state.js"></script>
+<script src="spec/value_macros/date_time.js"></script>
+
+<script src="spec/changer_macros/control_flow.js"></script>
+<script src="spec/changer_macros/style.js"></script>
+<script src="spec/changer_macros/links.js"></script>
+<script src="spec/changer_macros/hooks.js"></script>
+<script src="spec/changer_macros/enchantment.js"></script>
+<script src="spec/changer_macros/interaction.js"></script>
+<script src="spec/changer_macros/revision.js"></script>
+
+<script src="spec/command_macros/basics.js"></script>
+<script src="spec/command_macros/saving.js"></script>
+
+<tw-story style='visibility:hidden'></tw-story>
+<tw-storydata options="debug" ifid="107370AE-1D5A-4A33-A52C-D1180BA69750" startnode="1">
+<tw-passagedata pid="1" name="1">
