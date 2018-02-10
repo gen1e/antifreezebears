@@ -10,13 +10,13 @@ ul#names{
 .teammember{
     padding-top: 30px;
     font-size: 25px;
-    color:pink;
+    color: #72C6A3;
 }
 
 
 /*From Template*/
 body {
-  font-family: 'Lato';
+  font-family: "Century Gothic", CenturyGothic, AppleGothic, sans-serif;
 }
 
 h1,
@@ -26,7 +26,6 @@ h4,
 h5,
 h6 {
   font-weight: 700;
-  font-family: 'Montserrat';
 }
 
 hr.star-light,
@@ -57,7 +56,7 @@ hr.star-light {
 
 hr.star-light:after {
   color: #fff;
-  background-color: #18BC9C;
+  background-color: #958BC2;
 }
 
 hr.star-dark {
@@ -115,7 +114,6 @@ section h2 {
   padding-top: 1rem;
   padding-bottom: 1rem;
   font-weight: 700;
-  font-family: 'Montserrat';
 }
 
 #mainNav .navbar-brand {
@@ -132,7 +130,7 @@ section h2 {
 }
 
 #mainNav .navbar-nav li.nav-item a.nav-link:hover {
-  color: #18BC9C;
+  color: #72C6A3;
 }
 
 #mainNav .navbar-nav li.nav-item a.nav-link:active, #mainNav .navbar-nav li.nav-item a.nav-link:focus {
@@ -140,7 +138,7 @@ section h2 {
 }
 
 #mainNav .navbar-nav li.nav-item a.nav-link.active {
-  color: #18BC9C;
+  color: #72C6A3;
 }
 
 #mainNav .navbar-toggler {
@@ -167,11 +165,11 @@ section h2 {
   }
   #mainNav .navbar-nav > li.nav-item > a.nav-link.active {
     color: #fff;
-    background: #18BC9C;
+    background: #72C6A3;
   }
   #mainNav .navbar-nav > li.nav-item > a.nav-link.active:active, #mainNav .navbar-nav > li.nav-item > a.nav-link.active:focus, #mainNav .navbar-nav > li.nav-item > a.nav-link.active:hover {
     color: #fff;
-    background: #18BC9C;
+    background: #72C6A3;
   }
   #mainNav.navbar-shrink {
     padding-top: 0.5rem;
@@ -345,7 +343,7 @@ form .row:first-child .floating-label-form-group {
 }
 
 .copyright {
-  background-color: #1a252f;
+  background-color: #1A1725;
 }
 
 a {
@@ -361,11 +359,11 @@ a:focus, a:hover, a:active {
 }
 
 .bg-primary {
-  background-color: #18BC9C !important;
+  background-color: #958BC2 !important;
 }
 
 .bg-secondary {
-  background-color: #2C3E50 !important;
+  background-color: #1A1725 !important;
 }
 
 .text-primary {
