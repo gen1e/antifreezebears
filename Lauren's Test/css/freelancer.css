@@ -12,7 +12,10 @@ ul#names{
     font-size: 25px;
     color: #72C6A3;
 }
-
+.center{
+    text-align: center;
+    color:#72C6A3;
+}
 
 /*From Template*/
 body {
